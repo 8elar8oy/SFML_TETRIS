@@ -1,53 +1,95 @@
 #pragma once
 #include "settings.h"
-#include "gameObject.h"
+//#include "gameObject.h"
+#include <iostream>
 
-class Player : public GameObject {
+#include <ctime> 
+
+//int n = 3; // задаем тип тетрамино
+//
+
+class Tetramino /*: public GameObject*/ {
 private:
 	float speedy = 0.f;
 	float speedx = 0.f;
 	int score = 0;
-	sf::FloatRect bounds;
+	sf::FloatRect bounds[4];
+	sf::Clock timer;
+	int pos_x[4];//позиция одного из 4 кубиков тетрамино по x
+	int pos_y[4];//позиция одного из 4 кубиков тетрамино по y
 	int dx;
+	int dy = 36;
+	int type;
+	int color;
+	sf::Sprite sprite[4];
+	sf::Texture  texture;
 public:
 
-	Player() {
+	Tetramino() {
 		texture.loadFromFile("TETRISSFML.png");
-
-		sprite.setTexture(texture);
-		sprite.setTextureRect(sf::IntRect(0,0,36, 36));
-		bounds = sprite.getGlobalBounds();
-		sprite.setPosition(
-			(WINDOW_WIDTH - bounds.width) / 2,
-			WINDOW_HEIGHT - bounds.height - 50.f
-		);
+		type = rand() % 7;
+		color = rand() % 7;
+		for (int i = 0; i < 4; i++)
+		{
+			sprite[i].setTexture(texture);
+			sprite[i].setTextureRect(sf::IntRect(0+36*color, 0, 36+ 1 * color, 36+ 1 * color));
+			pos_x[i] = tetramino[type][i] % 2;
+			pos_y[i] = tetramino[type][i] / 2;
+			bounds[i] = sprite[i].getGlobalBounds();
+			sprite[i].setPosition(pos_x[i] * 36, pos_y[i] * 36);
+		}
+		timer.restart();
 	}
-
-
 	void update() {
+		float time = timer.getElapsedTime().asMilliseconds();
+		if (time > 50) {
+			timer.restart();
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+				dx = -36;
+				for (int i = 0; i < 4; i++)
+				{
+					sprite[i].setPosition(sprite[i].getPosition().x + dx, sprite[i].getPosition().y);
+				}
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+				dx = 36;
+				for (int i = 0; i < 4; i++)
+				{
+					sprite[i].setPosition(sprite[i].getPosition().x + dx, sprite[i].getPosition().y);
+				}
+				
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				sprite[i].setPosition(sprite[i].getPosition().x, sprite[i].getPosition().y + dy);
+			}
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			sf::Vector2f playerPos[] = sprite[i].getPosition();
+			if (playerPos[i].x < 0) {
+				sprite[i].setPosition(0.f, playerPos[i].y);
+			}
+			if (playerPos[i].y > WINDOW_HEIGHT) {
+				sprite[i].setPosition(playerPos[i].x, WINDOW_HEIGHT - bounds[i].height);
+			}
+			else if (playerPos[i].x > WINDOW_WIDTH - bounds[i].width) {
+				sprite[i].setPosition(WINDOW_WIDTH - bounds[i].width, playerPos[i].y);
+			}
+
+		}
 		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-			dx = -36;
-			sprite.setPosition(sprite.getPosition().x + dx, sprite.getPosition().y);
-			dx = 0;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-			dx = 36;
-			sprite.setPosition(sprite.getPosition().x + dx, sprite.getPosition().y);
-			dx = 0;
-		}
 		
-		sf::Vector2f playerPos = sprite.getPosition();
-		if (playerPos.x < 0) {
-			sprite.setPosition(0.f, playerPos.y);
-		}
-		else if (playerPos.x > WINDOW_WIDTH - bounds.width) {
-			sprite.setPosition(WINDOW_WIDTH - bounds.width, playerPos.y);
-		}
 	}
+	sf::Vector2f getPositon(int i) { return sprite[i].getPosition(); }
+	sf::FloatRect getHitBox(int i) { return sprite[i].getGlobalBounds(); }
 
 	void draw(sf::RenderWindow& window) {
-		window.draw(sprite);
+		for (int i = 0; i < 4; i++)
+		{
+			window.draw(sprite[i]);
+		}
+		
 	}
 	int getScore() { return score; }
 };
