@@ -24,7 +24,9 @@ private:
 	}
 public:
 	Game() :window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE)
-	{ window.setFramerateLimit(FPS); }
+	{
+		window.setFramerateLimit(FPS);
+	}
 
 	void play() {
 		while (window.isOpen())

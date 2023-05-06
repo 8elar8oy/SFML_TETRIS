@@ -8,12 +8,14 @@ private:
 	float speedx = 0.f;
 	int score = 0;
 	sf::FloatRect bounds;
-
+	int dx;
 public:
 
 	Player() {
 		texture.loadFromFile("TETRISSFML.png");
+
 		sprite.setTexture(texture);
+		sprite.setTextureRect(sf::IntRect(0,0,36, 36));
 		bounds = sprite.getGlobalBounds();
 		sprite.setPosition(
 			(WINDOW_WIDTH - bounds.width) / 2,
@@ -23,13 +25,18 @@ public:
 
 
 	void update() {
+		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-			speedx = -PLAYER_SPEED;
+			dx = -36;
+			sprite.setPosition(sprite.getPosition().x + dx, sprite.getPosition().y);
+			dx = 0;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-			speedx = PLAYER_SPEED;
+			dx = 36;
+			sprite.setPosition(sprite.getPosition().x + dx, sprite.getPosition().y);
+			dx = 0;
 		}
-		sprite.move(speedx, 0.f);
+		
 		sf::Vector2f playerPos = sprite.getPosition();
 		if (playerPos.x < 0) {
 			sprite.setPosition(0.f, playerPos.y);
@@ -38,16 +45,9 @@ public:
 			sprite.setPosition(WINDOW_WIDTH - bounds.width, playerPos.y);
 		}
 	}
-	
+
 	void draw(sf::RenderWindow& window) {
 		window.draw(sprite);
 	}
 	int getScore() { return score; }
-	/*void incScore(int damage) { score = score + damage; }
-	void decScore() { score--; }*/
-
-	
-	
-
-
 };
